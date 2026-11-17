@@ -30,7 +30,6 @@ Opinionated composite actions for Node.js + pnpm projects, consumed by other rep
 | `build/action.yml` | Production build via a pnpm script |
 | `.github/workflows/internal-test.yml` | Tests the actions via `uses: ./<action>` against `tests/fixtures/` |
 | `.github/workflows/internal-*.yml` | Thin callers of `dotactions/tooling` (see [Shared CI](#shared-ci-dotactionstooling)) |
-| `.tooling/` | `dotactions/tooling` submodule: `tests/lib.sh` harness only |
 | `tests/fixtures/` | Minimal pnpm project |
 
 ## Pinning & References
@@ -42,7 +41,7 @@ Opinionated composite actions for Node.js + pnpm projects, consumed by other rep
 
 ## Shared CI (`dotactions/tooling`)
 
-- `internal-release.yml`, `internal-check-refs.yml`, `internal-actionlint.yml`, `internal-lint.yml`, `internal-test-scripts.yml` are thin callers of `dotactions/tooling/.github/workflows/*.yml`. They only hold `on:`/`paths:`, `permissions:` and `with:`. Logic changes go to `tooling`, not here.
+- `internal-release.yml`, `internal-check-refs.yml`, `internal-actionlint.yml` are thin callers of `dotactions/tooling/.github/workflows/*.yml`. They only hold `on:`/`paths:`, `permissions:` and `with:`. Logic changes go to `tooling`, not here.
 - Callers never declare `concurrency:`; the called workflow does, and an identical group in caller and callee deadlocks.
 
 ## Inputs, Scripts & Security
@@ -62,7 +61,7 @@ Opinionated composite actions for Node.js + pnpm projects, consumed by other rep
 ## Testing
 
 - Composite actions are tested via `uses: ./<action>` in `internal-test.yml`, with assertions on outputs and produced files. Add or extend a test for every behavioural change.
-- Script logic is unit-tested in `tests/<name>.test.sh` using the harness from the `.tooling` submodule (`source "$(dirname "$0")/../.tooling/tests/lib.sh"`; run `git submodule update --init` first). `internal-test-scripts.yml` runs every one on ubuntu, macOS and Windows. Add cases for every branch you change.
+- No scripts exist yet. The first `<action>/scripts/*` file also brings in the `.tooling` submodule (`tests/lib.sh` harness for `tests/<name>.test.sh`) and the `internal-lint.yml` / `internal-test-scripts.yml` callers, copied from `dotactions/flutter`.
 - Each `internal-*` workflow has a `paths:` filter. When adding files that a workflow should cover, update its filter.
 - Local checks before finishing (run whichever apply):
     - `shellcheck <changed .sh files>`
