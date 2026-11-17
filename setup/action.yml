@@ -3,8 +3,11 @@ description: Sets up pnpm, Node.js, and installs dependencies
 
 inputs:
   node-version:
-    description: "Node.js version"
-    default: "24"
+    description: "Node.js version (takes precedence over node-version-file)"
+    default: ""
+  node-version-file:
+    description: "Node.js version file relative to working-directory (e.g. .nvmrc, package.json)"
+    default: ""
   pnpm-version:
     description: "pnpm version"
     default: ""
@@ -18,6 +21,17 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Validate inputs
+      shell: bash
+      env:
+        NODE_VERSION: ${{ inputs.node-version }}
+        NODE_VERSION_FILE: ${{ inputs.node-version-file }}
+      run: |
+        if [ -z "$NODE_VERSION" ] && [ -z "$NODE_VERSION_FILE" ]; then
+          echo "::error::Set node-version (e.g. \"24\") or node-version-file (e.g. \".nvmrc\")."
+          exit 1
+        fi
+
     - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       with:
         version: ${{ inputs.pnpm-version }}
@@ -26,6 +40,7 @@ runs:
     - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version: ${{ inputs.node-version }}
+        node-version-file: ${{ inputs.node-version-file != '' && format('{0}/{1}', inputs.working-directory, inputs.node-version-file) || '' }}
         cache: pnpm
         cache-dependency-path: ${{ inputs.cache-dependency-path != '' && inputs.cache-dependency-path || format('{0}/pnpm-lock.yaml', inputs.working-directory) }}
 
