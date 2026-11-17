@@ -3,7 +3,5 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
-.dart_tool/
-**/build/
-**/ephemeral/
 build-args.json
+filtered.txt

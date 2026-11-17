@@ -8,8 +8,11 @@ inputs:
   script:
     description: "Build script name defined in package.json"
     default: "build"
+  filter:
+    description: "pnpm --filter selector for workspace packages (e.g. web)"
+    default: ""
   args:
-    description: "Additional arguments to pass to the build script"
+    description: "Additional arguments passed to the script, split on whitespace"
     default: ""
 
 runs:
@@ -20,5 +23,8 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       env:
         SCRIPT: ${{ inputs.script }}
+        FILTER: ${{ inputs.filter }}
         ARGS: ${{ inputs.args }}
-      run: pnpm run "$SCRIPT" $ARGS
+      run: |
+        set -f
+        pnpm ${FILTER:+--filter "$FILTER"} run "$SCRIPT" $ARGS
